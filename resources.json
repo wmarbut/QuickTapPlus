@@ -1,0 +1,12 @@
+[
+	{
+		"type": "png",
+		"name": "QTP_IMG_BT",
+		"file": "images/bluetooth.png"
+	},
+	{
+		"type": "png",
+		"name": "QTP_IMG_BAT",
+		"file": "images/battery.png"
+	}
+]
