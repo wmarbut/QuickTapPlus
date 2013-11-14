@@ -19,9 +19,12 @@
 #define QTP_PADDING_X 5
 #define QTP_BT_ICON_SIZE 32
 #define QTP_BAT_ICON_SIZE 32
+#define QTP_WEATHER_SIZE 32
 #define QTP_TIME_HEIGHT 32
 #define QTP_BATTERY_BASE_Y 0
 #define QTP_BLUETOOTH_BASE_Y QTP_BAT_ICON_SIZE + 5
+#define QTP_WEATHER_BASE_Y QTP_BAT_ICON_SIZE + QTP_BT_ICON_SIZE + 10
+
 
 
 // Items
@@ -30,12 +33,24 @@ bool qtp_is_showing;
 TextLayer *qtp_battery_text_layer;
 TextLayer *qtp_bluetooth_text_layer;
 TextLayer *qtp_time_layer;
+TextLayer *qtp_temp_layer;
 AppTimer *qtp_hide_timer;
 GBitmap *qtp_bluetooth_image;
 BitmapLayer *qtp_bluetooth_image_layer;
 GBitmap *qtp_battery_image;
 BitmapLayer *qtp_battery_image_layer;
 int qtp_conf;
+
+AppSync qtp_sync;
+uint8_t qtp_sync_buffer[100];
+
+enum qtp_weather_key {
+	QTP_WEATHER_ICON_KEY = 0x0,         // TUPLE_INT
+	QTP_WEATHER_TEMP_KEY = 0x1,  // TUPLE_CSTRING
+	QTP_WEATHER_CITY_KEY = 0x2,         // TUPLE_CSTRING
+	QTP_WEATHER_DESC_KEY = 0x3,         // TUPLE_CSTRING
+};
+
 
 // Methods
 void qtp_setup();
@@ -48,6 +63,10 @@ void qtp_timeout();
 void qtp_tap_handler(AccelAxisType axis, int32_t direction);
 void qtp_click_config_provider(Window *window);
 void qtp_back_click_responder(ClickRecognizerRef recognizer, void *context);
+
+void qtp_setup_app_message();
+static void qtp_sync_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context);
+static void qtp_sync_error_callback(DictionaryResult dict_error, AppMessageResult app_message_error, void *context);
 
 void qtp_update_battery_status(bool mark_dirty);
 void qtp_update_bluetooth_status(bool mark_dirty);
@@ -63,5 +82,6 @@ bool qtp_is_autohide();
 
 int qtp_battery_y();
 int qtp_bluetooth_y();
+int qtp_weather_y();
 
 
