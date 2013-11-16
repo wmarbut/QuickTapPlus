@@ -11,42 +11,42 @@
 	},
 	{
 		"type":"png",
-		"name":"RESOURCE_ID_IMAGE_CLEAR_DAY",
+		"name":"QTP_IMAGE_CLEAR_DAY",
 		"file":"images/clear_day.png"
 	},
 	{
 		"type":"png",
-		"name":"RESOURCE_ID_IMAGE_CLEAR_NIGHT",
+		"name":"QTP_IMAGE_CLEAR_NIGHT",
 		"file":"images/clear_night.png"
 	},
 	{
 		"type":"png",
-		"name":"RESOURCE_ID_IMAGE_ATMOSPHERE_NIGHT",
+		"name":"QTP_IMAGE_ATMOSPHERE_NIGHT",
 		"file":"images/atmosphere_night.png"
 	},
 	{
 		"type":"png",
-		"name":"RESOURCE_ID_IMAGE_ATMOSPHERE_DAY",
+		"name":"QTP_IMAGE_ATMOSPHERE_DAY",
 		"file":"images/atmosphere.png"
 	},
 	{
 		"type":"png",
-		"name":"RESOURCE_ID_IMAGE_CLOUDY",
+		"name":"QTP_IMAGE_CLOUDY",
 		"file":"images/cloudy.png"
 	},
 	{
 		"type":"png",
-		"name":"RESOURCE_ID_IMAGE_THUNDERSTORM",
+		"name":"QTP_IMAGE_THUNDERSTORM",
 		"file":"images/thunderstorm.png"
 	},
 	{
 		"type":"png",
-		"name":"RESOURCE_ID_IMAGE_RAIN",
+		"name":"QTP_IMAGE_RAIN",
 		"file":"images/rain.png"
 	},
 	{
 		"type":"png",
-		"name":"RESOURCE_ID_IMAGE_SNOW",
+		"name":"QTP_IMAGE_SNOW",
 		"file":"images/snow.png"
 	},
 ]

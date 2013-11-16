@@ -38,7 +38,9 @@ TextLayer *qtp_temp_layer;
 TextLayer *qtp_weather_desc_layer;
 AppTimer *qtp_hide_timer;
 GBitmap *qtp_bluetooth_image;
+GBitmap *qtp_weather_icon;
 BitmapLayer *qtp_bluetooth_image_layer;
+BitmapLayer *qtp_weather_icon_layer;
 GBitmap *qtp_battery_image;
 BitmapLayer *qtp_battery_image_layer;
 int qtp_conf;
@@ -55,14 +57,14 @@ enum qtp_weather_key {
 };
 
 static const int QTP_WEATHER_ICONS[] = {
-	RESOURCE_ID_IMAGE_CLEAR_DAY,
-	RESOURCE_ID_IMAGE_CLEAR_NIGHT,
-	RESOURCE_ID_IMAGE_ATMOSPHERE_NIGHT,
-	RESOURCE_ID_IMAGE_ATMOSPHERE_DAY,
-	RESOURCE_ID_IMAGE_CLOUDY,
-	RESOURCE_ID_IMAGE_THUNDERSTORM,
-	RESOURCE_ID_IMAGE_RAIN,
-	RESOURCE_ID_IMAGE_SNOW
+	RESOURCE_ID_QTP_IMAGE_CLEAR_DAY, //0
+	RESOURCE_ID_QTP_IMAGE_CLEAR_NIGHT, //1
+	RESOURCE_ID_QTP_IMAGE_ATMOSPHERE_NIGHT, //2
+	RESOURCE_ID_QTP_IMAGE_ATMOSPHERE_DAY, //3
+	RESOURCE_ID_QTP_IMAGE_CLOUDY, //4
+	RESOURCE_ID_QTP_IMAGE_THUNDERSTORM, //5
+	RESOURCE_ID_QTP_IMAGE_RAIN, //6
+	RESOURCE_ID_QTP_IMAGE_SNOW //7
 };
 
 
@@ -85,6 +87,7 @@ static void qtp_sync_error_callback(DictionaryResult dict_error, AppMessageResul
 void qtp_update_battery_status(bool mark_dirty);
 void qtp_update_bluetooth_status(bool mark_dirty);
 void qtp_update_time(bool mark_dirty);
+void qtp_update_weather_icon(int icon_index, bool remove_old, bool mark_dirty);
 
 void qtp_init();
 void qtp_deinit();
