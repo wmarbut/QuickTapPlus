@@ -170,9 +170,9 @@ void qtp_init() {
 
 	if (qtp_is_show_weather()) {
 
-		GRect desc_frame = GRect( QTP_PADDING_X , qtp_weather_y() + QTP_WEATHER_SIZE, QTP_SCREEN_WIDTH - QTP_PADDING_X, QTP_WEATHER_SIZE);
+		GRect desc_frame = GRect( QTP_PADDING_X + QTP_WEATHER_SIZE + 5, qtp_weather_y() + QTP_WEATHER_SIZE, QTP_SCREEN_WIDTH - QTP_PADDING_X, QTP_WEATHER_SIZE);
 		qtp_weather_desc_layer = text_layer_create(desc_frame);
-		text_layer_set_font(qtp_weather_desc_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+		text_layer_set_font(qtp_weather_desc_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
 		text_layer_set_text_alignment(qtp_weather_desc_layer, GTextAlignmentLeft);
 		const Tuple *desc_tuple = app_sync_get(&qtp_sync, QTP_WEATHER_DESC_KEY);
 		if (desc_tuple != NULL) {
@@ -238,6 +238,13 @@ void qtp_init() {
 	qtp_update_bluetooth_status(false);
 	layer_add_child(window_get_root_layer(qtp_window), text_layer_get_layer(qtp_bluetooth_text_layer));
 
+	/* Invert the screen */
+	if (qtp_is_invert()) {
+		GRect inverter_frame = GRect(0,0, QTP_SCREEN_WIDTH, QTP_SCREEN_HEIGHT);
+		qtp_inverter_layer = inverter_layer_create(inverter_frame);
+		layer_add_child(window_get_root_layer(qtp_window), inverter_layer_get_layer(qtp_inverter_layer));
+	}
+
 	/* Register for back button */
 	//window_set_click_config_provider(qtp_window, (ClickConfigProvider)qtp_click_config_provider);
 
@@ -258,6 +265,9 @@ void qtp_deinit() {
 		text_layer_destroy(qtp_weather_desc_layer);
 		bitmap_layer_destroy(qtp_weather_icon_layer);
 		gbitmap_destroy(qtp_weather_icon);
+	}
+	if (qtp_is_invert()) {
+		inverter_layer_destroy(qtp_inverter_layer);
 	}
 	window_destroy(qtp_window);
 	app_timer_cancel(qtp_hide_timer);
@@ -297,6 +307,10 @@ bool qtp_is_autohide() {
 }
 bool qtp_is_degrees_f() {
 	return (qtp_conf & QTP_K_DEGREES_F) == QTP_K_DEGREES_F;
+}
+
+bool qtp_is_invert() {
+	return (qtp_conf & QTP_K_INVERT) == QTP_K_INVERT;
 }
 
 int qtp_battery_y() {

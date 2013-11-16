@@ -12,6 +12,7 @@
 #define QTP_K_SHOW_WEATHER 2
 #define QTP_K_AUTOHIDE 4
 #define QTP_K_DEGREES_F 8
+#define QTP_K_INVERT 16
 
 #define QTP_SCREEN_WIDTH        144
 #define QTP_SCREEN_HEIGHT       168
@@ -43,6 +44,7 @@ BitmapLayer *qtp_bluetooth_image_layer;
 BitmapLayer *qtp_weather_icon_layer;
 GBitmap *qtp_battery_image;
 BitmapLayer *qtp_battery_image_layer;
+InverterLayer *qtp_inverter_layer;
 int qtp_conf;
 
 AppSync qtp_sync;
@@ -98,6 +100,7 @@ bool qtp_is_show_time();
 bool qtp_is_show_weather();
 bool qtp_is_autohide();
 bool qtp_is_degrees_f();
+bool qtp_is_invert();
 
 int qtp_battery_y();
 int qtp_bluetooth_y();

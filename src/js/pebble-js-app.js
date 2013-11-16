@@ -58,7 +58,6 @@
 		var getWeatherIcon = function(weather_id, sunset, sunrise) {
 			var cdate = (new Date()).getTime()/1000;
 			var is_day = (cdate < sunset && cdate > sunrise)? true : false;
-			console.log("Date: " + cdate + " sunset: " + sunset + " sunrise: " + sunrise);
 			var icon = 0;
 			if (weather_id <= 100) {
 				icon = (is_day)? 0 : 1;
