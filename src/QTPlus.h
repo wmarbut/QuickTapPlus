@@ -11,6 +11,7 @@
 #define QTP_K_SHOW_TIME 1
 #define QTP_K_SHOW_WEATHER 2
 #define QTP_K_AUTOHIDE 4
+#define QTP_K_DEGREES_F 8
 
 #define QTP_SCREEN_WIDTH        144
 #define QTP_SCREEN_HEIGHT       168
@@ -34,6 +35,7 @@ TextLayer *qtp_battery_text_layer;
 TextLayer *qtp_bluetooth_text_layer;
 TextLayer *qtp_time_layer;
 TextLayer *qtp_temp_layer;
+TextLayer *qtp_weather_desc_layer;
 AppTimer *qtp_hide_timer;
 GBitmap *qtp_bluetooth_image;
 BitmapLayer *qtp_bluetooth_image_layer;
@@ -46,9 +48,21 @@ uint8_t qtp_sync_buffer[100];
 
 enum qtp_weather_key {
 	QTP_WEATHER_ICON_KEY = 0x0,         // TUPLE_INT
-	QTP_WEATHER_TEMP_KEY = 0x1,  // TUPLE_CSTRING
+	QTP_WEATHER_TEMP_F_KEY = 0x1,  // TUPLE_CSTRING
 	QTP_WEATHER_CITY_KEY = 0x2,         // TUPLE_CSTRING
 	QTP_WEATHER_DESC_KEY = 0x3,         // TUPLE_CSTRING
+	QTP_WEATHER_TEMP_C_KEY = 0x4 // TUPLE_CSTRING
+};
+
+static const int QTP_WEATHER_ICONS[] = {
+	RESOURCE_ID_IMAGE_CLEAR_DAY,
+	RESOURCE_ID_IMAGE_CLEAR_NIGHT,
+	RESOURCE_ID_IMAGE_ATMOSPHERE_NIGHT,
+	RESOURCE_ID_IMAGE_ATMOSPHERE_DAY,
+	RESOURCE_ID_IMAGE_CLOUDY,
+	RESOURCE_ID_IMAGE_THUNDERSTORM,
+	RESOURCE_ID_IMAGE_RAIN,
+	RESOURCE_ID_IMAGE_SNOW
 };
 
 
@@ -79,6 +93,7 @@ void qtp_deinit();
 bool qtp_is_show_time();
 bool qtp_is_show_weather();
 bool qtp_is_autohide();
+bool qtp_is_degrees_f();
 
 int qtp_battery_y();
 int qtp_bluetooth_y();

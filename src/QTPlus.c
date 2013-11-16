@@ -69,16 +69,18 @@ void qtp_update_time(bool mark_dirty) {
 	}
 }
 
+
 /* Setup app message callbacks for weather */
 void qtp_setup_app_message() {
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: setting app message for weather");
 
-	const int inbound_size = 64;
-	const int outbound_size = 64;
+	const int inbound_size = 100;
+	const int outbound_size = 100;
 	app_message_open(inbound_size, outbound_size);
 	Tuplet initial_values[] = {
 		TupletInteger(QTP_WEATHER_ICON_KEY, (uint8_t) 1),
-		TupletCString(QTP_WEATHER_TEMP_KEY, "---\u00B0F"),
+		TupletCString(QTP_WEATHER_TEMP_F_KEY, "---\u00B0F"),
+		TupletCString(QTP_WEATHER_TEMP_C_KEY, "---\u00B0F"),
 		TupletCString(QTP_WEATHER_CITY_KEY, "Atlanta      "),
 		TupletCString(QTP_WEATHER_DESC_KEY, "Scattered Thunderstorms")
 	};
@@ -93,15 +95,23 @@ void qtp_setup_app_message() {
 static void qtp_sync_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) {
 	
 	switch (key) {
-		case QTP_WEATHER_TEMP_KEY:
-			APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather temp received");
-			if (qtp_is_showing) {
-
+		case QTP_WEATHER_TEMP_F_KEY:
+			APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather temp f received");
+			if (qtp_is_showing && qtp_is_degrees_f()) {
+				text_layer_set_text(qtp_temp_layer, new_tuple->value->cstring);
+			}
+			break;
+		case QTP_WEATHER_TEMP_C_KEY:
+			APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather temp c received");
+			if (qtp_is_showing && !qtp_is_degrees_f()) {
 				text_layer_set_text(qtp_temp_layer, new_tuple->value->cstring);
 			}
 			break;
 		case QTP_WEATHER_DESC_KEY:
 			APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather desc received: %s", new_tuple->value->cstring);
+			if (qtp_is_showing) {
+				text_layer_set_text(qtp_weather_desc_layer, new_tuple->value->cstring);
+			}
 			break;
 
 	}
@@ -142,13 +152,30 @@ void qtp_init() {
 
 	if (qtp_is_show_weather()) {
 
+		GRect desc_frame = GRect( QTP_PADDING_X , qtp_weather_y() + QTP_WEATHER_SIZE, QTP_SCREEN_WIDTH - QTP_PADDING_X, QTP_WEATHER_SIZE);
+		qtp_weather_desc_layer = text_layer_create(desc_frame);
+		text_layer_set_font(qtp_weather_desc_layer, fonts_get_system_font(FONT_KEY_GOTHIC_14));
+		text_layer_set_text_alignment(qtp_weather_desc_layer, GTextAlignmentLeft);
+		const Tuple *desc_tuple = app_sync_get(&qtp_sync, QTP_WEATHER_DESC_KEY);
+		if (desc_tuple != NULL) {
+			text_layer_set_text(qtp_weather_desc_layer, desc_tuple->value->cstring);
+		}
+		layer_add_child(window_get_root_layer(qtp_window), text_layer_get_layer(qtp_weather_desc_layer));
+
+
 		GRect temp_frame = GRect( QTP_PADDING_X, qtp_weather_y(), QTP_SCREEN_WIDTH, QTP_WEATHER_SIZE);
 		qtp_temp_layer = text_layer_create(temp_frame);
 		text_layer_set_text_alignment(qtp_temp_layer, GTextAlignmentLeft);
-		const Tuple *temp_tuple = app_sync_get(&qtp_sync, QTP_WEATHER_TEMP_KEY);
+		const Tuple *temp_tuple;
+		if (qtp_is_degrees_f()) {
+			temp_tuple = app_sync_get(&qtp_sync, QTP_WEATHER_TEMP_F_KEY);
+		} else {
+			temp_tuple = app_sync_get(&qtp_sync, QTP_WEATHER_TEMP_C_KEY);
+		}
 		if (temp_tuple != NULL) {
 			text_layer_set_text(qtp_temp_layer, temp_tuple->value->cstring);
 		}
+		text_layer_set_font(qtp_temp_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28));
 		layer_add_child(window_get_root_layer(qtp_window), text_layer_get_layer(qtp_temp_layer));
 
 	}
@@ -228,6 +255,9 @@ bool qtp_is_show_weather() {
 }
 bool qtp_is_autohide() {
 	return (qtp_conf & QTP_K_AUTOHIDE) == QTP_K_AUTOHIDE;
+}
+bool qtp_is_degrees_f() {
+	return (qtp_conf & QTP_K_DEGREES_F) == QTP_K_DEGREES_F;
 }
 
 int qtp_battery_y() {
