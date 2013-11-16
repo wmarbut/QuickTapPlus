@@ -55,9 +55,9 @@
 			sendWeatherFail();
 		};
 
-		var getWeatherIcon = function(weather_id,sunset) {
+		var getWeatherIcon = function(weather_id, sunset, sunrise) {
 			var cdate = new Date();
-			var is_day = (cdate.getTime() < sunset)? true : false;
+			var is_day = (cdate.getTime() < sunset && cdate.getTime() > sunrise)? true : false;
 			var icon = 0;
 			if (weather_id <= 100) {
 				icon = (is_day)? 0 : 1;
@@ -98,7 +98,7 @@
 					if (response && response.main && response.weather) {
 						var weather_response = {
 							"temperature": Math.round(response.main.temp - 273.15),
-							"icon": getWeatherIcon(response.weather[0].id),
+							"icon": getWeatherIcon(response.weather[0].id, response.sys.sunset, response.sys.sunrise),
 							"city": response.name,
 							"description": response.weather[0].main
 						};
