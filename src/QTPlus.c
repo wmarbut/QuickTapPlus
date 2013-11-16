@@ -273,7 +273,9 @@ void qtp_deinit() {
 		inverter_layer_destroy(qtp_inverter_layer);
 	}
 	window_destroy(qtp_window);
-	app_timer_cancel(qtp_hide_timer);
+	if (qtp_is_autohide()) {
+		app_timer_cancel(qtp_hide_timer);
+	}
 }
 
 /* Deallocate persistent QTPlus items when watchface exits */
@@ -288,8 +290,9 @@ void qtp_app_deinit() {
 void qtp_show() {
 	qtp_init();
 	window_stack_push(qtp_window, true);
-	qtp_hide_timer = app_timer_register(QTP_WINDOW_TIMEOUT, qtp_timeout, NULL);
-
+	if (qtp_is_autohide()) {
+		qtp_hide_timer = app_timer_register(QTP_WINDOW_TIMEOUT, qtp_timeout, NULL);
+	}
 }
 
 /* Hide QTPlus. Free memory */

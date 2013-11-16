@@ -1,6 +1,8 @@
 # What is Quick Tap Plus
 
-An *easy* way to add weather, battery, and bluetooth pairing info to any watchface without screwing up the aesthetics. It is designed to be configurable and a drop-in addition. This is for Pebble 2.0 only.
+Just shake your watch for more info.
+
+It's an *easy* way to add weather, battery, and bluetooth pairing info to any watchface without screwing up the aesthetics. It is designed to be configurable and a drop-in addition. The 'Tap' in the name comes from the tap event. The default behavior is to show the to show the window when the watch is shaken and then autohide after 2 seconds. This is for Pebble 2.0 only.
 
 Have a look for yourself.
 
@@ -21,15 +23,17 @@ Examples for the Pebble team are greatly appreciated, you can find the [dev site
 
 # What can I configure?
 
-1. *QTP_K_SHOW_TIME* The clock at the top is shown if this is enabled
-+ *QTP_K_SHOW_WEATHER* Weather at the bottom is if this enabled
-+ *QTP_K_AUTOHIDE* Automatically hide the app shade after 2 seconds if this is enabled
-+ *QTP_K_DEGREES_F* Use farenheit if enabled, otherwise celcisus is used
-+ *QTP_K_INVERT* White background unless enabled
+1. `QTP_K_SHOW_TIME` *Default off.* The clock at the top is shown if this is enabled
++ `QTP_K_SHOW_WEATHER` *Default off.* Weather at the bottom is if this enabled
++ `QTP_K_AUTOHIDE` *Default off.* Automatically hide the app shade after 2 seconds if this is enabled
++ `QTP_K_DEGREES_F` *Default off.* Use farenheit if enabled, otherwise celcisus is used
++ `QTP_K_INVERT` *Default off.* White background unless enabled
 
 # How do I use it?
 
 I set it up to be as easy as possible to install and use.
+
+Do not use weather if you are already using `AppMessage`. QuickTap Plus will prevent it from working. If you aren't going to use weather, don't copy the javascript over.
 
 ## appinfo.json
 
@@ -48,3 +52,4 @@ Copy the `resources/images` into your `resources/images`.
   e.g. `qtp_conf = QTP_K_SHOW_TIME | QTP_K_SHOW_WEATHER | QTP_K_AUTOHIDE | QTP_K_DEGREES_F | QTP_K_INVERT;` 
 + Add `qtp_setup();` before your `app_event_loop()` call.
 + Add `qtp_app_deinit();` wherever you peform your deinit operations 
+
