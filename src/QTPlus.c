@@ -250,7 +250,10 @@ void qtp_deinit() {
 	text_layer_destroy(qtp_bluetooth_text_layer);
 	bitmap_layer_destroy(qtp_bluetooth_image_layer);
 	if (qtp_is_show_weather()) {
+		text_layer_destroy(qtp_temp_layer);
+		text_layer_destroy(qtp_weather_desc_layer);
 		bitmap_layer_destroy(qtp_weather_icon_layer);
+		gbitmap_destroy(qtp_weather_icon);
 	}
 	window_destroy(qtp_window);
 	app_timer_cancel(qtp_hide_timer);
