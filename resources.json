@@ -49,4 +49,9 @@
 		"name":"QTP_IMAGE_SNOW",
 		"file":"images/snow.png"
 	},
+	{
+		"type":"png",
+		"name":"QTP_IMAGE_NONE",
+		"file":"images/none.png"
+	}
 ]

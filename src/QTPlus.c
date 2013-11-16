@@ -90,11 +90,11 @@ void qtp_setup_app_message() {
 	const int outbound_size = 100;
 	app_message_open(inbound_size, outbound_size);
 	Tuplet initial_values[] = {
-		TupletInteger(QTP_WEATHER_ICON_KEY, (uint8_t) 1),
+		TupletInteger(QTP_WEATHER_ICON_KEY, (uint8_t) 8),
 		TupletCString(QTP_WEATHER_TEMP_F_KEY, "---\u00B0F"),
 		TupletCString(QTP_WEATHER_TEMP_C_KEY, "---\u00B0F"),
 		TupletCString(QTP_WEATHER_CITY_KEY, "Atlanta      "),
-		TupletCString(QTP_WEATHER_DESC_KEY, "Scattered Thunderstorms")
+		TupletCString(QTP_WEATHER_DESC_KEY, "                       ")
 	};
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather tuples intialized");
 

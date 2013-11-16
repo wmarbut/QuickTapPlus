@@ -1,7 +1,8 @@
 
 	/* Initialize QTPlus within your app */
 	var QTPlusInit = function(){
-		var location_watcher;
+		var weather_timeout, failed_attempts;
+		failed_attempts = 0;
 
 		var roundTo = function(flpt, places) {
 			return	(Math.round( (parseInt( flpt * Math.pow(10, places+1) ) / 10) ) / Math.pow(10,places));
@@ -16,13 +17,16 @@
 					console.log("Unable to send message");
 					console.log(e.error.message);
 					console.log(e);
+					setTimeout(function() {
+						sendWeather(weather);
+					}, 5000);
 				}
 			);
 		};
 
 		var sendWeatherFail = function() {
 			sendWeather({
-				"0": 1,
+				"0": 8,
 				"1": "---\u00B0F",
 				"2": "N/A",
 				"3": "N/A",
@@ -31,7 +35,7 @@
 		};
 
 		var getLocation = function(callback) {
-			location_watcher = window.navigator.geolocation.getCurrentPosition(
+			window.navigator.geolocation.getCurrentPosition(
 				function(loc) {
 					callback(false, loc);	
 				},
@@ -122,6 +126,7 @@
 					getWeather(loc, function(err, weather){
 						if (!err) {
 							console.log("Weather received, sending to Pebble");
+							failed_attempts = 0;
 							sendWeather({
 								"0": weather.icon,
 								"1": ((1.8 * weather.temperature)+32).toString() + "\u00B0C",
@@ -132,21 +137,35 @@
 						} else {
 							console.log("Unable to retrieve weather");
 							sendWeatherFail();
+							resetWeather();
 						}
 					});
 				} else {
 					console.log("Unable to retrieeve location");
 					sendWeatherFail();
+					resetWeather();
 				}
 			});
 		};
 
-		goWeather();
-		setTimeout(function() {
-			goWeather();
-		}, 15*60*1000);
-		
+		var resetWeather = function() {
+			if (weather_timeout) {
+				console.log("Clearing weather timeout");
+				clearTimeout(weather_timeout);
+				weather_timeout = false;
+				failed_attempts += 1;
+			}
+			if (failed_attempts < 5) {
+				console.log("Kick off weather");
+				goWeather();
+			}
+			weather_timeout = setTimeout(function() {
+				goWeather();
+			}, 15*60*1000);
+		};
 
+		console.log("Initial weather request");
+		resetWeather();
 
 	};
 
