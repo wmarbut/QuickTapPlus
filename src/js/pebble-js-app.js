@@ -56,22 +56,23 @@
 		};
 
 		var getWeatherIcon = function(weather_id, sunset, sunrise) {
-			var cdate = new Date();
-			var is_day = (cdate.getTime() < sunset && cdate.getTime() > sunrise)? true : false;
+			var cdate = (new Date()).getTime()/1000;
+			var is_day = (cdate < sunset && cdate > sunrise)? true : false;
+			console.log("Date: " + cdate + " sunset: " + sunset + " sunrise: " + sunrise);
 			var icon = 0;
 			if (weather_id <= 100) {
 				icon = (is_day)? 0 : 1;
-			} else if (weather_id <= 200) {
+			} else if (weather_id <= 232) {
 				icon = 5;
-			} else if (weather_id <= 300) {
-				icon = 6;
-			} else if (weather_id <= 500) {
+			} else if (weather_id <= 321) {
 				icon = 6;
 			} else if (weather_id <= 600) {
-				icon = 7;
+				icon = 6;
 			} else if (weather_id <= 700) {
-				icon = (is_day)? 3 : 2;
+				icon = 7;
 			} else if (weather_id <= 800) {
+				icon = (is_day)? 3 : 2;
+			} else if (weather_id <= 900) {
 				icon = 4;
 			} else if (weather_id < 950) {
 				icon = 5;
@@ -97,7 +98,7 @@
 					var temperature, icon, city, description;
 					if (response && response.main && response.weather) {
 						var weather_response = {
-							"temperature": Math.round(response.main.temp - 273.15),
+							"temperature": response.main.temp - 273.15,
 							"icon": getWeatherIcon(response.weather[0].id, response.sys.sunset, response.sys.sunrise),
 							"city": response.name,
 							"description": response.weather[0].main
@@ -129,10 +130,10 @@
 							failed_attempts = 0;
 							sendWeather({
 								"0": weather.icon,
-								"1": ((1.8 * weather.temperature)+32).toString() + "\u00B0C",
+								"1": roundTo(((1.8 * weather.temperature)+32), 1).toString() + "\u00B0F",
 								"2": weather.city,
 								"3": weather.description,
-								"4": weather.temperature.toString() + "\u00B0C"
+								"4": roundTo(weather.temperature,1).toString() + "\u00B0C"
 							});
 						} else {
 							console.log("Unable to retrieve weather");

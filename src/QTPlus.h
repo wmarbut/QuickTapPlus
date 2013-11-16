@@ -46,7 +46,7 @@ BitmapLayer *qtp_battery_image_layer;
 int qtp_conf;
 
 AppSync qtp_sync;
-uint8_t qtp_sync_buffer[100];
+uint8_t qtp_sync_buffer[120];
 
 enum qtp_weather_key {
 	QTP_WEATHER_ICON_KEY = 0x0,         // TUPLE_INT

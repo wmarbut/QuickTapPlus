@@ -249,6 +249,10 @@ void qtp_deinit() {
 	text_layer_destroy(qtp_battery_text_layer);
 	text_layer_destroy(qtp_bluetooth_text_layer);
 	bitmap_layer_destroy(qtp_bluetooth_image_layer);
+	bitmap_layer_destroy(qtp_battery_image_layer);
+	if (qtp_is_show_time()) {
+		text_layer_destroy(qtp_time_layer);
+	}
 	if (qtp_is_show_weather()) {
 		text_layer_destroy(qtp_temp_layer);
 		text_layer_destroy(qtp_weather_desc_layer);
