@@ -44,6 +44,7 @@ void qtp_update_battery_status(bool mark_dirty) {
 	}
 }
 
+/* Update the weather icon. Destroy the current one if necessary */
 void qtp_update_weather_icon(int icon_index, bool remove_old, bool mark_dirty) {
 	const int icon_id = QTP_WEATHER_ICONS[icon_index];
 	qtp_weather_icon = gbitmap_create_with_resource(icon_id);
@@ -104,6 +105,7 @@ void qtp_setup_app_message() {
 
 }
 
+/* Handle incoming data from Javascript and update the view accordingly */
 static void qtp_sync_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) {
 	
 	switch (key) {
@@ -136,6 +138,7 @@ static void qtp_sync_changed_callback(const uint32_t key, const Tuple* new_tuple
 
 }
 
+/* Clear out the display on failure */
 static void qtp_sync_error_callback(DictionaryResult dict_error, AppMessageResult app_message_error, void *context) {
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather app message error occurred: %d, %d", dict_error, app_message_error);
 	if (DICT_NOT_ENOUGH_STORAGE == dict_error) {
@@ -168,8 +171,10 @@ void qtp_init() {
 		layer_add_child(window_get_root_layer(qtp_window), text_layer_get_layer(qtp_time_layer));
 	}
 
+	/* Setup weather if it is enabled */
 	if (qtp_is_show_weather()) {
 
+		/* Weather description layer */
 		GRect desc_frame = GRect( QTP_PADDING_X + QTP_WEATHER_SIZE + 5, qtp_weather_y() + QTP_WEATHER_SIZE, QTP_SCREEN_WIDTH - QTP_PADDING_X, QTP_WEATHER_SIZE);
 		qtp_weather_desc_layer = text_layer_create(desc_frame);
 		text_layer_set_font(qtp_weather_desc_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
@@ -181,6 +186,7 @@ void qtp_init() {
 		layer_add_child(window_get_root_layer(qtp_window), text_layer_get_layer(qtp_weather_desc_layer));
 
 
+		/* Temperature description layer */
 		GRect temp_frame = GRect( QTP_PADDING_X + QTP_WEATHER_SIZE + 5, qtp_weather_y(), QTP_SCREEN_WIDTH, QTP_WEATHER_SIZE);
 		qtp_temp_layer = text_layer_create(temp_frame);
 		text_layer_set_text_alignment(qtp_temp_layer, GTextAlignmentLeft);
@@ -196,16 +202,13 @@ void qtp_init() {
 		text_layer_set_font(qtp_temp_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28));
 		layer_add_child(window_get_root_layer(qtp_window), text_layer_get_layer(qtp_temp_layer));
 
+		/* Weather icon layer */
 		GRect weather_icon_frame = GRect( QTP_PADDING_X, qtp_weather_y(), QTP_WEATHER_SIZE, QTP_WEATHER_SIZE );
 		qtp_weather_icon_layer = bitmap_layer_create(weather_icon_frame);
 		bitmap_layer_set_alignment(qtp_weather_icon_layer, GAlignCenter);
 		const Tuple *icon_tuple = app_sync_get(&qtp_sync, QTP_WEATHER_ICON_KEY);
 		qtp_update_weather_icon(icon_tuple->value->uint8, false, false);
-
-
 		layer_add_child(window_get_root_layer(qtp_window), bitmap_layer_get_layer(qtp_weather_icon_layer)); 
-		
-
 
 	}
 

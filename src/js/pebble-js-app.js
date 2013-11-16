@@ -4,10 +4,16 @@
 		var weather_timeout, failed_attempts;
 		failed_attempts = 0;
 
+		/**
+		* Round floats to a certain number of places
+		*/
 		var roundTo = function(flpt, places) {
 			return	(Math.round( (parseInt( flpt * Math.pow(10, places+1) ) / 10) ) / Math.pow(10,places));
 		};
 
+		/**
+		* Send the weather object watch
+		*/
 		var sendWeather = function(weather) {
 			Pebble.sendAppMessage(
 				weather,
@@ -24,6 +30,9 @@
 			);
 		};
 
+		/**
+		* Generic weather failure
+		*/
 		var sendWeatherFail = function() {
 			sendWeather({
 				"0": 8,
@@ -34,6 +43,9 @@
 			});
 		};
 
+		/*
+		* Get location and gracefully handle error
+		*/
 		var getLocation = function(callback) {
 			window.navigator.geolocation.getCurrentPosition(
 				function(loc) {
@@ -55,6 +67,9 @@
 			sendWeatherFail();
 		};
 
+		/**
+		* Match the weather id to the icon.
+		*/
 		var getWeatherIcon = function(weather_id, sunset, sunrise) {
 			var cdate = (new Date()).getTime()/1000;
 			var is_day = (cdate < sunset && cdate > sunrise)? true : false;
@@ -79,6 +94,9 @@
 			return icon;	
 		};
 
+		/**
+		* Query the weather api
+		*/
 		var getWeather = function (loc, callback) {
 			var req = new XMLHttpRequest();
 			var url = "http://api.openweathermap.org/data/2.5/weather?" +
@@ -118,6 +136,9 @@
 
 		};
 
+		/**
+		* Main worker function to get location and get weather
+		*/
 		var goWeather = function() {
 			console.log("Requestiong weather...");
 			getLocation(function(err, loc){
@@ -148,6 +169,9 @@
 			});
 		};
 
+		/**
+		* Handle a failed attempt by resetting the timer and trying again
+		*/
 		var resetWeather = function() {
 			if (weather_timeout) {
 				console.log("Clearing weather timeout");
