@@ -1,7 +1,7 @@
 
 	/* Initialize QTPlus within your app */
 	var QTPlusInit = function(){
-		var weather_timeout, failed_attempts;
+		var weather_interval, failed_attempts;
 		failed_attempts = 0;
 
 		/**
@@ -173,17 +173,17 @@
 		* Handle a failed attempt by resetting the timer and trying again
 		*/
 		var resetWeather = function() {
-			if (weather_timeout) {
+			if (weather_interval) {
 				console.log("Clearing weather timeout");
-				clearTimeout(weather_timeout);
-				weather_timeout = false;
+				clearInterval(weather_interval);
+				weather_interval = false;
 				failed_attempts += 1;
 			}
 			if (failed_attempts < 5) {
 				console.log("Kick off weather");
 				goWeather();
 			}
-			weather_timeout = setTimeout(function() {
+			weather_interval = setInterval(function() {
 				goWeather();
 			}, 15*60*1000);
 		};
