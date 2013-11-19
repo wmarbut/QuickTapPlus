@@ -2,7 +2,7 @@
 
 Just shake your watch for more info.
 
-It's an *easy* way to add weather, battery, and bluetooth pairing info to any watchface without screwing up the aesthetics. It is designed to be configurable and a drop-in addition. The 'Tap' in the name comes from the tap event. The default behavior is to show the to show the window when the watch is shaken and then autohide after 2 seconds. This is for Pebble 2.0 only.
+It's an *easy* way to add weather, battery, and bluetooth pairing info to any watchface without screwing up the aesthetics. It is designed to be configurable and a drop-in addition. The 'Tap' in the name comes from the tap event. The default behavior is to show the window when the watch is shaken and then autohide after 2 seconds. This is for Pebble 2.0 only.
 
 Have a look for yourself.
 
@@ -11,15 +11,18 @@ Have a look for yourself.
 
 # Credit where credit is do, license, etc
 
-Quick Tap Plus is licensed under the [*Attribution-NonCommercial-ShareAlike 3.0 Unported*](http://creativecommons.org/licenses/by-nc-sa/3.0/deed.en_US). If you have something different in mind, reach out. 
-
 Weather icons are from [Alessio Atzeni](http://www.alessioatzeni.com/meteocons/) and are called "Meteocons". 
 
 Battery icon is from the [Pyconic](http://www.pyconic.com/) free set. 
 
 Bluetooth icon is from [Flaticons](http://flaticons.net/customize.php?dir=Network%20and%20Security&icon=Bluetooth.png).
 
+Weather data is from [OpenWeatherMap.org](http://openweathermap.org/)
+
 Examples for the Pebble team are greatly appreciated, you can find the [dev site](https://developer.getpebble.com).
+
+
+Quick Tap Plus is licensed under the [*Attribution-NonCommercial-ShareAlike 3.0 Unported*](http://creativecommons.org/licenses/by-nc-sa/3.0/deed.en_US). If you have something different in mind, reach out. 
 
 # What can I configure?
 
