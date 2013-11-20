@@ -71,10 +71,11 @@
 		* Match the weather id to the icon.
 		*/
 		var getWeatherIcon = function(weather_id, sunset, sunrise) {
+			console.log("Weather ID: " + weather_id);
 			var cdate = (new Date()).getTime()/1000;
 			var is_day = (cdate < sunset && cdate > sunrise)? true : false;
 			var icon = 0;
-			if (weather_id <= 100) {
+			if (weather_id < 200 || weather_id == 800) {
 				icon = (is_day)? 0 : 1;
 			} else if (weather_id <= 232) {
 				icon = 5;
