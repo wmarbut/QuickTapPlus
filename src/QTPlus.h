@@ -46,6 +46,7 @@ GBitmap *qtp_battery_image;
 BitmapLayer *qtp_battery_image_layer;
 InverterLayer *qtp_inverter_layer;
 int qtp_conf;
+bool qtp_bluetooth_status;
 
 AppSync qtp_sync;
 uint8_t qtp_sync_buffer[120];
@@ -86,6 +87,7 @@ void qtp_back_click_responder(ClickRecognizerRef recognizer, void *context);
 void qtp_setup_app_message();
 static void qtp_sync_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context);
 static void qtp_sync_error_callback(DictionaryResult dict_error, AppMessageResult app_message_error, void *context);
+void qtp_bluetooth_callback(bool connected);
 
 void qtp_update_battery_status(bool mark_dirty);
 void qtp_update_bluetooth_status(bool mark_dirty);

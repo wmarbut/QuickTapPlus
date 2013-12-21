@@ -6,6 +6,8 @@ void qtp_setup() {
 	accel_tap_service_subscribe(&qtp_tap_handler);
 	qtp_bluetooth_image = gbitmap_create_with_resource(RESOURCE_ID_QTP_IMG_BT);
 	qtp_battery_image = gbitmap_create_with_resource(RESOURCE_ID_QTP_IMG_BAT);
+
+	bluetooth_connection_service_subscribe( qtp_bluetooth_callback );
 	
 	if (qtp_is_show_weather()) {
 		qtp_setup_app_message();
@@ -61,7 +63,7 @@ void qtp_update_weather_icon(int icon_index, bool remove_old, bool mark_dirty) {
 void qtp_update_bluetooth_status(bool mark_dirty) {
 	static char bluetooth_text[] = "Not Paired";
 
-	if (bluetooth_connection_service_peek()) {
+	if (qtp_bluetooth_status) {
 		snprintf(bluetooth_text, sizeof(bluetooth_text), "Paired");
 	}
 
@@ -136,6 +138,15 @@ static void qtp_sync_changed_callback(const uint32_t key, const Tuple* new_tuple
 
 	}
 
+}
+
+void qtp_bluetooth_callback(bool connected) {
+	APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: bluetooth status callback: %d", connected);
+
+	qtp_bluetooth_status = connected;
+	if (qtp_is_showing) {
+		qtp_update_bluetooth_status(false);
+	}
 }
 
 /* Clear out the display on failure */
@@ -235,6 +246,8 @@ void qtp_init() {
 
 
 	/* Bluetooth Status text layer */
+	qtp_bluetooth_status = bluetooth_connection_service_peek();
+
 	GRect bluetooth_frame = GRect(40,qtp_bluetooth_y(), QTP_SCREEN_WIDTH - QTP_BT_ICON_SIZE, QTP_BT_ICON_SIZE);
 	qtp_bluetooth_text_layer =  text_layer_create(bluetooth_frame);
 	text_layer_set_font(qtp_bluetooth_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28));
@@ -280,6 +293,7 @@ void qtp_deinit() {
 
 /* Deallocate persistent QTPlus items when watchface exits */
 void qtp_app_deinit() {
+	bluetooth_connection_service_unsubscribe();
 	gbitmap_destroy(qtp_battery_image);
 	gbitmap_destroy(qtp_bluetooth_image);
 	app_sync_deinit(&qtp_sync);
