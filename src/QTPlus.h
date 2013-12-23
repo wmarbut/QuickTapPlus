@@ -7,7 +7,6 @@
 */
 
 // Config
-#define QTP_WINDOW_TIMEOUT 2000
 #define QTP_K_SHOW_TIME 1
 #define QTP_K_SHOW_WEATHER 2
 #define QTP_K_AUTOHIDE 4
@@ -30,6 +29,7 @@
 
 
 // Items
+static int QTP_WINDOW_TIMEOUT = 2000;
 static Window *qtp_window;
 bool qtp_is_showing;
 TextLayer *qtp_battery_text_layer;
