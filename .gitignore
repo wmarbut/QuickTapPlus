@@ -1,2 +1,5 @@
 *.swp
 *.swo
+.DS_Store
+scripts/Gemfile.lock
+src/qt_config.h
