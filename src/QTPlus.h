@@ -12,6 +12,8 @@
 #define QTP_K_AUTOHIDE 4
 #define QTP_K_DEGREES_F 8
 #define QTP_K_INVERT 16
+#define QTP_K_SUBSCRIBE 32
+#define QTP_K_VIBRATE 64
 
 #define QTP_SCREEN_WIDTH        144
 #define QTP_SCREEN_HEIGHT       168
@@ -31,22 +33,22 @@
 // Items
 static int QTP_WINDOW_TIMEOUT = 2000;
 static Window *qtp_window;
-bool qtp_is_showing;
-TextLayer *qtp_battery_text_layer;
-TextLayer *qtp_bluetooth_text_layer;
-TextLayer *qtp_time_layer;
-TextLayer *qtp_temp_layer;
-TextLayer *qtp_weather_desc_layer;
-AppTimer *qtp_hide_timer;
-GBitmap *qtp_bluetooth_image;
-GBitmap *qtp_weather_icon;
-BitmapLayer *qtp_bluetooth_image_layer;
-BitmapLayer *qtp_weather_icon_layer;
-GBitmap *qtp_battery_image;
-BitmapLayer *qtp_battery_image_layer;
-InverterLayer *qtp_inverter_layer;
-int qtp_conf;
-bool qtp_bluetooth_status;
+static bool qtp_is_showing;
+static TextLayer *qtp_battery_text_layer;
+static TextLayer *qtp_bluetooth_text_layer;
+static TextLayer *qtp_time_layer;
+static TextLayer *qtp_temp_layer;
+static TextLayer *qtp_weather_desc_layer;
+static AppTimer *qtp_hide_timer;
+static GBitmap *qtp_bluetooth_image;
+static GBitmap *qtp_weather_icon;
+static BitmapLayer *qtp_bluetooth_image_layer;
+static BitmapLayer *qtp_weather_icon_layer;
+static GBitmap *qtp_battery_image;
+static BitmapLayer *qtp_battery_image_layer;
+static InverterLayer *qtp_inverter_layer;
+static int qtp_conf;
+static bool qtp_bluetooth_status;
 
 AppSync qtp_sync;
 uint8_t qtp_sync_buffer[120];
@@ -103,6 +105,11 @@ bool qtp_is_show_weather();
 bool qtp_is_autohide();
 bool qtp_is_degrees_f();
 bool qtp_is_invert();
+bool qtp_should_vibrate();
+
+void qtp_set_config(int config);
+void qtp_set_timeout(int timeout);
+void qtp_init_bluetooth_status(bool status);
 
 int qtp_battery_y();
 int qtp_bluetooth_y();

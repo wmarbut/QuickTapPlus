@@ -48,11 +48,25 @@ class QTPlusConfiguration
 				type: 'yn'
 			},
 			{
+				description: "Subscribe to bluetooth",
+				question: "Subscribe to bluetooth? If you don't, you must call the callback yourself.",
+				value: "QTP_K_SUBSCRIBE",
+				default: true,
+				type: 'yn'
+			},
+			{
+				description: "Vibrate on bluetooth loss and regain",
+				question: "Vibrate on bluetooth status change",
+				value: "QTP_K_VIBRATE",
+				default: false,
+				type: 'yn'
+			},
+			{
 				description: "Window display length in milliseconds",
 				question: "How long should the window be shown? ",
-				value: "QTP_WINDOW_TIMEOUT",
+				value: "qtp_set_timeout",
 				default: 2000,
-				type: 'int',
+				type: 'func',
 				user_val: ''
 			}
 		]
@@ -60,8 +74,9 @@ class QTPlusConfiguration
 	end
 
 	def buildOptions
-		str = "\n// Configure QT+\nqtp_conf = "
+		str = "\n// Configure QT+\nqtp_set_config("
 		val_str = ""
+		func_str = ""
 
 		@options_enabled.each_with_index do |option,index|
 			if option[:type] == 'yn'
@@ -70,11 +85,13 @@ class QTPlusConfiguration
 					str += " | "
 				end
 				str += option[:value] + "\t/* " + option[:description] + "*/"
+			elsif option[:type] == 'func'
+				func_str += "\n#{option[:value]}(#{option[:user_val]}); /* #{option[:description]} */"
 			else
 				val_str += "\n#{option[:value]} = #{option[:user_val]}; /* #{option[:description]} */"
 			end
 		end
-		str += ";" + val_str
+		str += ");\n" + val_str + func_str
 		str
 	end
 end
