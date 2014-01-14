@@ -10,6 +10,16 @@
 		"file": "images/battery.png"
 	},
 	{
+		"type": "png",
+		"name": "QTP_IMG_BATP",
+		"file": "images/battery_partial.png"
+	},
+	{
+		"type": "png",
+		"name": "QTP_IMG_BATE",
+		"file": "images/battery_empty.png"
+	},
+	{
 		"type":"png",
 		"name":"QTP_IMAGE_CLEAR_DAY",
 		"file":"images/clear_day.png"

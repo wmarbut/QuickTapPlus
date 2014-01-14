@@ -4,8 +4,11 @@
 void qtp_setup() {
 	qtp_is_showing = false;
 	accel_tap_service_subscribe(&qtp_tap_handler);
+	qtp_battery_images[0] = gbitmap_create_with_resource(RESOURCE_ID_QTP_IMG_BATE);
+	qtp_battery_images[1] = gbitmap_create_with_resource(RESOURCE_ID_QTP_IMG_BATP);
+	qtp_battery_images[2] = gbitmap_create_with_resource(RESOURCE_ID_QTP_IMG_BAT);
+	qtp_battery_image = qtp_battery_images[0];
 	qtp_bluetooth_image = gbitmap_create_with_resource(RESOURCE_ID_QTP_IMG_BT);
-	qtp_battery_image = gbitmap_create_with_resource(RESOURCE_ID_QTP_IMG_BAT);
 
 	if (qtp_conf & QTP_K_SUBSCRIBE) {
 		qtp_bluetooth_status = bluetooth_connection_service_peek();
@@ -43,9 +46,19 @@ void qtp_update_battery_status(bool mark_dirty) {
 	static char battery_text[] = "100%";
 	snprintf(battery_text, sizeof(battery_text), "%d%%", charge_state.charge_percent);
 
+	if (charge_state.charge_percent >= 85) {
+		qtp_battery_image = qtp_battery_images[2];
+	} else if (charge_state.charge_percent <= 30) {
+		qtp_battery_image = qtp_battery_images[0];
+	} else {
+		qtp_battery_image = qtp_battery_images[1];
+	}
+	bitmap_layer_set_bitmap(qtp_battery_image_layer, qtp_battery_image);
+
 	text_layer_set_text(qtp_battery_text_layer, battery_text);
 	if (mark_dirty) {
 		layer_mark_dirty(text_layer_get_layer(qtp_battery_text_layer));
+		layer_mark_dirty(bitmap_layer_get_layer(qtp_battery_image_layer));
 	}
 }
 
@@ -235,7 +248,7 @@ void qtp_init() {
 
 	}
 
-	/* Bluetooth Logo layer */
+	/* Battery Logo layer */
 	GRect battery_logo_frame = GRect( QTP_PADDING_X, qtp_battery_y(), QTP_BAT_ICON_SIZE, QTP_BAT_ICON_SIZE );
 	qtp_battery_image_layer = bitmap_layer_create(battery_logo_frame);
 	bitmap_layer_set_bitmap(qtp_battery_image_layer, qtp_battery_image);
@@ -307,7 +320,9 @@ void qtp_app_deinit() {
 	if (qtp_conf & QTP_K_SUBSCRIBE) {
 		bluetooth_connection_service_unsubscribe();
 	}
-	gbitmap_destroy(qtp_battery_image);
+	gbitmap_destroy(qtp_battery_images[0]);
+	gbitmap_destroy(qtp_battery_images[1]);
+	gbitmap_destroy(qtp_battery_images[2]);
 	gbitmap_destroy(qtp_bluetooth_image);
 	app_sync_deinit(&qtp_sync);
 

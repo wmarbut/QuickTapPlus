@@ -44,6 +44,7 @@ static GBitmap *qtp_bluetooth_image;
 static GBitmap *qtp_weather_icon;
 static BitmapLayer *qtp_bluetooth_image_layer;
 static BitmapLayer *qtp_weather_icon_layer;
+static GBitmap *qtp_battery_images[3];
 static GBitmap *qtp_battery_image;
 static BitmapLayer *qtp_battery_image_layer;
 static InverterLayer *qtp_inverter_layer;
@@ -71,6 +72,12 @@ static const int QTP_WEATHER_ICONS[] = {
 	RESOURCE_ID_QTP_IMAGE_RAIN, //6
 	RESOURCE_ID_QTP_IMAGE_SNOW, //7
 	RESOURCE_ID_QTP_IMAGE_NONE //8
+};
+
+static const int QTP_BATTERY_ICONS[] = {
+	RESOURCE_ID_QTP_IMG_BATE,
+	RESOURCE_ID_QTP_IMG_BATP,
+	RESOURCE_ID_QTP_IMG_BAT
 };
 
 
