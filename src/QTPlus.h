@@ -6,6 +6,9 @@
 * Autohide
 */
 
+// Uncomment for log messages
+// #define QTP_DEBUG 1
+
 // Config
 #define QTP_K_SHOW_TIME 1
 #define QTP_K_SHOW_WEATHER 2

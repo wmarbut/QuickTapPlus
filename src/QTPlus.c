@@ -14,7 +14,7 @@ void qtp_setup() {
 		qtp_bluetooth_status = bluetooth_connection_service_peek();
 		bluetooth_connection_service_subscribe( qtp_bluetooth_callback );
 	}
-	
+
 	if (qtp_is_show_weather()) {
 		qtp_setup_app_message();
 	}
@@ -105,7 +105,9 @@ void qtp_update_time(bool mark_dirty) {
 
 /* Setup app message callbacks for weather */
 void qtp_setup_app_message() {
+#ifdef QTP_DEBUG
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: setting app message for weather");
+#endif
 
 	const int inbound_size = 100;
 	const int outbound_size = 100;
@@ -117,38 +119,50 @@ void qtp_setup_app_message() {
 		TupletCString(QTP_WEATHER_CITY_KEY, "Atlanta      "),
 		TupletCString(QTP_WEATHER_DESC_KEY, "                       ")
 	};
+#ifdef QTP_DEBUG
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather tuples intialized");
+#endif
 
 	app_sync_init(&qtp_sync, qtp_sync_buffer, sizeof(qtp_sync_buffer), initial_values, ARRAY_LENGTH(initial_values),
 	  qtp_sync_changed_callback, qtp_sync_error_callback, NULL);
+#ifdef QTP_DEBUG
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather app message initialized");
+#endif
 
 }
 
 /* Handle incoming data from Javascript and update the view accordingly */
 static void qtp_sync_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) {
-	
+
 	switch (key) {
 		case QTP_WEATHER_TEMP_F_KEY:
+#ifdef QTP_DEBUG
 			APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather temp f received");
+#endif
 			if (qtp_is_showing && qtp_is_degrees_f()) {
 				text_layer_set_text(qtp_temp_layer, new_tuple->value->cstring);
 			}
 			break;
 		case QTP_WEATHER_TEMP_C_KEY:
+#ifdef QTP_DEBUG
 			APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather temp c received");
+#endif
 			if (qtp_is_showing && !qtp_is_degrees_f()) {
 				text_layer_set_text(qtp_temp_layer, new_tuple->value->cstring);
 			}
 			break;
 		case QTP_WEATHER_DESC_KEY:
+#ifdef QTP_DEBUG
 			APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather desc received: %s", new_tuple->value->cstring);
+#endif
 			if (qtp_is_showing) {
 				text_layer_set_text(qtp_weather_desc_layer, new_tuple->value->cstring);
 			}
 			break;
 		case QTP_WEATHER_ICON_KEY:
+#ifdef QTP_DEBUG
 			APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather icon received: %d", new_tuple->value->uint8);
+#endif
 			if (qtp_is_showing) {
 				qtp_update_weather_icon(new_tuple->value->uint8, true, true);
 			}
@@ -159,7 +173,9 @@ static void qtp_sync_changed_callback(const uint32_t key, const Tuple* new_tuple
 }
 
 void qtp_bluetooth_callback(bool connected) {
+#ifdef QTP_DEBUG
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: bluetooth status callback: %d", connected);
+#endif
 	if (qtp_should_vibrate()) {
 		if (connected) {
 			vibes_short_pulse();
@@ -176,10 +192,12 @@ void qtp_bluetooth_callback(bool connected) {
 
 /* Clear out the display on failure */
 static void qtp_sync_error_callback(DictionaryResult dict_error, AppMessageResult app_message_error, void *context) {
+#ifdef QTP_DEBUG
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather app message error occurred: %d, %d", dict_error, app_message_error);
 	if (DICT_NOT_ENOUGH_STORAGE == dict_error) {
 		APP_LOG(APP_LOG_LEVEL_DEBUG, "Not enough storage");
 	}
+#endif
 
 	static char placeholder[] = "--\u00B0F";
 	text_layer_set_text(qtp_temp_layer, placeholder);
@@ -395,7 +413,7 @@ void qtp_set_config(int config) {
 }
 
 void qtp_set_timeout(int timeout) {
-	QTP_WINDOW_TIMEOUT = timeout;	
+	QTP_WINDOW_TIMEOUT = timeout;
 }
 
 void qtp_init_bluetooth_status(bool status) {
