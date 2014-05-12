@@ -23,6 +23,9 @@ void qtp_setup() {
 /* Handle taps from the hardware */
 void qtp_tap_handler(AccelAxisType axis, int32_t direction) {
 	if (qtp_is_showing) {
+		if (qtp_is_autohide()) {
+			app_timer_cancel(qtp_hide_timer);
+		}
 		qtp_hide();
 	} else {
 		qtp_show();
@@ -328,9 +331,6 @@ void qtp_deinit() {
 		inverter_layer_destroy(qtp_inverter_layer);
 	}
 	window_destroy(qtp_window);
-	if (qtp_is_autohide()) {
-		app_timer_cancel(qtp_hide_timer);
-	}
 }
 
 /* Deallocate persistent QTPlus items when watchface exits */
