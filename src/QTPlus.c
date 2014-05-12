@@ -136,43 +136,7 @@ void qtp_setup_app_message() {
 
 /* Handle incoming data from Javascript and update the view accordingly */
 static void qtp_sync_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) {
-
-	switch (key) {
-		case QTP_WEATHER_TEMP_F_KEY:
-#ifdef QTP_DEBUG
-			APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather temp f received");
-#endif
-			if (qtp_is_showing && qtp_is_degrees_f()) {
-				text_layer_set_text(qtp_temp_layer, new_tuple->value->cstring);
-			}
-			break;
-		case QTP_WEATHER_TEMP_C_KEY:
-#ifdef QTP_DEBUG
-			APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather temp c received");
-#endif
-			if (qtp_is_showing && !qtp_is_degrees_f()) {
-				text_layer_set_text(qtp_temp_layer, new_tuple->value->cstring);
-			}
-			break;
-		case QTP_WEATHER_DESC_KEY:
-#ifdef QTP_DEBUG
-			APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather desc received: %s", new_tuple->value->cstring);
-#endif
-			if (qtp_is_showing) {
-				text_layer_set_text(qtp_weather_desc_layer, new_tuple->value->cstring);
-			}
-			break;
-		case QTP_WEATHER_ICON_KEY:
-#ifdef QTP_DEBUG
-			APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather icon received: %d", new_tuple->value->uint8);
-#endif
-			if (qtp_is_showing) {
-				qtp_update_weather_icon(new_tuple->value->uint8, true, true);
-			}
-			break;
-
-	}
-
+	return;
 }
 
 void qtp_bluetooth_callback(bool connected) {
