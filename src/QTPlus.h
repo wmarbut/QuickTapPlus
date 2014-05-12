@@ -1,22 +1,11 @@
 #include <pebble.h>
+#include "qt_config.h"
 /*
 * User settings
 * Show Clock
 * Show Weather
 * Autohide
 */
-
-// Uncomment for log messages
-// #define QTP_DEBUG 1
-
-// Config
-#define QTP_K_SHOW_TIME 1
-#define QTP_K_SHOW_WEATHER 2
-#define QTP_K_AUTOHIDE 4
-#define QTP_K_DEGREES_F 8
-#define QTP_K_INVERT 16
-#define QTP_K_SUBSCRIBE 32
-#define QTP_K_VIBRATE 64
 
 #define QTP_SCREEN_WIDTH        144
 #define QTP_SCREEN_HEIGHT       168
@@ -110,14 +99,7 @@ void qtp_init();
 void qtp_deinit();
 
 // Helpers
-bool qtp_is_show_time();
-bool qtp_is_show_weather();
-bool qtp_is_autohide();
-bool qtp_is_degrees_f();
-bool qtp_is_invert();
-bool qtp_should_vibrate();
 
-void qtp_set_config(int config);
 void qtp_set_timeout(int timeout);
 void qtp_init_bluetooth_status(bool status);
 
