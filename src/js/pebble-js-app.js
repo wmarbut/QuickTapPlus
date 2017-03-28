@@ -8,7 +8,7 @@
 		* Round floats to a certain number of places
 		*/
 		var roundTo = function(flpt, places) {
-			return	(Math.round( (parseInt( flpt * Math.pow(10, places+1) ) / 10) ) / Math.pow(10,places));
+			return	(Math.round( (parseInt( flpt * Math.pow(10, places+1), 10) / 10) ) / Math.pow(10,places));
 		};
 
 		/**
@@ -17,7 +17,7 @@
 		var sendWeather = function(weather) {
 			Pebble.sendAppMessage(
 				weather,
-				function(e){ 
+				function(e){
 					console.log("Successfully sent message");
 				}, function(e) {
 					console.log("Unable to send message");
@@ -49,12 +49,12 @@
 		var getLocation = function(callback) {
 			window.navigator.geolocation.getCurrentPosition(
 				function(loc) {
-					callback(false, loc);	
+					callback(false, loc);
 				},
 				function(err) {
 					locationFailureCallback(err);
 					callback(err);
-				}, 
+				},
 				{
 					timeout: 15000,
 					maximumAge: 10000
@@ -92,7 +92,7 @@
 			} else if (weather_id < 950) {
 				icon = 5;
 			}
-			return icon;	
+			return icon;
 		};
 
 		/**
@@ -141,10 +141,10 @@
 		* Main worker function to get location and get weather
 		*/
 		var goWeather = function() {
-			console.log("Requestiong weather...");
+			console.log("Requesting weather...");
 			getLocation(function(err, loc){
 				if (!err) {
-					console.log("Location received ("+ loc.coords.latitude + "," + loc.coords.longitude + "), fetching weather"); 
+					console.log("Location received ("+ loc.coords.latitude + "," + loc.coords.longitude + "), fetching weather");
 					getWeather(loc, function(err, weather){
 						if (!err) {
 							console.log("Weather received, sending to Pebble");

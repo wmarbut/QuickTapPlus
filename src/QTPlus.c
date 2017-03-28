@@ -10,19 +10,22 @@ void qtp_setup() {
 	qtp_battery_image = qtp_battery_images[0];
 	qtp_bluetooth_image = gbitmap_create_with_resource(RESOURCE_ID_QTP_IMG_BT);
 
-	if (qtp_conf & QTP_K_SUBSCRIBE) {
-		qtp_bluetooth_status = bluetooth_connection_service_peek();
-		bluetooth_connection_service_subscribe( qtp_bluetooth_callback );
-	}
-	
-	if (qtp_is_show_weather()) {
-		qtp_setup_app_message();
-	}
+#ifdef QTP_K_SUBSCRIBE
+	qtp_bluetooth_status = bluetooth_connection_service_peek();
+	bluetooth_connection_service_subscribe( qtp_bluetooth_callback );
+#endif
+
+#ifdef QTP_K_SHOW_WEATHER
+	qtp_setup_app_message();
+#endif
 }
 
 /* Handle taps from the hardware */
 void qtp_tap_handler(AccelAxisType axis, int32_t direction) {
 	if (qtp_is_showing) {
+#ifdef QTP_K_AUTOHIDE
+		app_timer_cancel(qtp_hide_timer);
+#endif
 		qtp_hide();
 	} else {
 		qtp_show();
@@ -105,7 +108,9 @@ void qtp_update_time(bool mark_dirty) {
 
 /* Setup app message callbacks for weather */
 void qtp_setup_app_message() {
+#ifdef QTP_DEBUG
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: setting app message for weather");
+#endif
 
 	const int inbound_size = 100;
 	const int outbound_size = 100;
@@ -117,56 +122,35 @@ void qtp_setup_app_message() {
 		TupletCString(QTP_WEATHER_CITY_KEY, "Atlanta      "),
 		TupletCString(QTP_WEATHER_DESC_KEY, "                       ")
 	};
+#ifdef QTP_DEBUG
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather tuples intialized");
+#endif
 
 	app_sync_init(&qtp_sync, qtp_sync_buffer, sizeof(qtp_sync_buffer), initial_values, ARRAY_LENGTH(initial_values),
 	  qtp_sync_changed_callback, qtp_sync_error_callback, NULL);
+#ifdef QTP_DEBUG
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather app message initialized");
+#endif
 
 }
 
 /* Handle incoming data from Javascript and update the view accordingly */
 static void qtp_sync_changed_callback(const uint32_t key, const Tuple* new_tuple, const Tuple* old_tuple, void* context) {
-	
-	switch (key) {
-		case QTP_WEATHER_TEMP_F_KEY:
-			APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather temp f received");
-			if (qtp_is_showing && qtp_is_degrees_f()) {
-				text_layer_set_text(qtp_temp_layer, new_tuple->value->cstring);
-			}
-			break;
-		case QTP_WEATHER_TEMP_C_KEY:
-			APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather temp c received");
-			if (qtp_is_showing && !qtp_is_degrees_f()) {
-				text_layer_set_text(qtp_temp_layer, new_tuple->value->cstring);
-			}
-			break;
-		case QTP_WEATHER_DESC_KEY:
-			APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather desc received: %s", new_tuple->value->cstring);
-			if (qtp_is_showing) {
-				text_layer_set_text(qtp_weather_desc_layer, new_tuple->value->cstring);
-			}
-			break;
-		case QTP_WEATHER_ICON_KEY:
-			APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather icon received: %d", new_tuple->value->uint8);
-			if (qtp_is_showing) {
-				qtp_update_weather_icon(new_tuple->value->uint8, true, true);
-			}
-			break;
-
-	}
-
+	return;
 }
 
 void qtp_bluetooth_callback(bool connected) {
+#ifdef QTP_DEBUG
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: bluetooth status callback: %d", connected);
-	if (qtp_should_vibrate()) {
-		if (connected) {
-			vibes_short_pulse();
-		} else {
-			vibes_double_pulse();
-		}
+#endif
+
+#ifdef QTP_K_VIBRATE
+	if (connected) {
+		vibes_short_pulse();
+	} else {
+		vibes_double_pulse();
 	}
+#endif
 
 	qtp_bluetooth_status = connected;
 	if (qtp_is_showing) {
@@ -176,10 +160,12 @@ void qtp_bluetooth_callback(bool connected) {
 
 /* Clear out the display on failure */
 static void qtp_sync_error_callback(DictionaryResult dict_error, AppMessageResult app_message_error, void *context) {
+#ifdef QTP_DEBUG
 	APP_LOG(APP_LOG_LEVEL_DEBUG, "QTP: weather app message error occurred: %d, %d", dict_error, app_message_error);
 	if (DICT_NOT_ENOUGH_STORAGE == dict_error) {
 		APP_LOG(APP_LOG_LEVEL_DEBUG, "Not enough storage");
 	}
+#endif
 
 	static char placeholder[] = "--\u00B0F";
 	text_layer_set_text(qtp_temp_layer, placeholder);
@@ -197,56 +183,52 @@ void qtp_init() {
 	qtp_window = window_create();
 
 	/* Time Layer */
-	if (qtp_is_show_time()) {
-
-		GRect time_frame = GRect( QTP_PADDING_X, QTP_PADDING_Y, QTP_SCREEN_WIDTH - QTP_PADDING_X, QTP_TIME_HEIGHT );
-		qtp_time_layer = text_layer_create(time_frame);
-		qtp_update_time(false);
-		text_layer_set_text_alignment(qtp_time_layer, GTextAlignmentCenter);
-		text_layer_set_font(qtp_time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28));
-		layer_add_child(window_get_root_layer(qtp_window), text_layer_get_layer(qtp_time_layer));
-	}
+#ifdef QTP_K_SHOW_TIME
+	GRect time_frame = GRect( QTP_PADDING_X, QTP_PADDING_Y, QTP_SCREEN_WIDTH - QTP_PADDING_X, QTP_TIME_HEIGHT );
+	qtp_time_layer = text_layer_create(time_frame);
+	qtp_update_time(false);
+	text_layer_set_text_alignment(qtp_time_layer, GTextAlignmentCenter);
+	text_layer_set_font(qtp_time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28));
+	layer_add_child(window_get_root_layer(qtp_window), text_layer_get_layer(qtp_time_layer));
+#endif
 
 	/* Setup weather if it is enabled */
-	if (qtp_is_show_weather()) {
-
-		/* Weather description layer */
-		GRect desc_frame = GRect( QTP_PADDING_X + QTP_WEATHER_SIZE + 5, qtp_weather_y() + QTP_WEATHER_SIZE, QTP_SCREEN_WIDTH - QTP_PADDING_X, QTP_WEATHER_SIZE);
-		qtp_weather_desc_layer = text_layer_create(desc_frame);
-		text_layer_set_font(qtp_weather_desc_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
-		text_layer_set_text_alignment(qtp_weather_desc_layer, GTextAlignmentLeft);
-		const Tuple *desc_tuple = app_sync_get(&qtp_sync, QTP_WEATHER_DESC_KEY);
-		if (desc_tuple != NULL) {
-			text_layer_set_text(qtp_weather_desc_layer, desc_tuple->value->cstring);
-		}
-		layer_add_child(window_get_root_layer(qtp_window), text_layer_get_layer(qtp_weather_desc_layer));
-
-
-		/* Temperature description layer */
-		GRect temp_frame = GRect( QTP_PADDING_X + QTP_WEATHER_SIZE + 5, qtp_weather_y(), QTP_SCREEN_WIDTH, QTP_WEATHER_SIZE);
-		qtp_temp_layer = text_layer_create(temp_frame);
-		text_layer_set_text_alignment(qtp_temp_layer, GTextAlignmentLeft);
-		const Tuple *temp_tuple;
-		if (qtp_is_degrees_f()) {
-			temp_tuple = app_sync_get(&qtp_sync, QTP_WEATHER_TEMP_F_KEY);
-		} else {
-			temp_tuple = app_sync_get(&qtp_sync, QTP_WEATHER_TEMP_C_KEY);
-		}
-		if (temp_tuple != NULL) {
-			text_layer_set_text(qtp_temp_layer, temp_tuple->value->cstring);
-		}
-		text_layer_set_font(qtp_temp_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28));
-		layer_add_child(window_get_root_layer(qtp_window), text_layer_get_layer(qtp_temp_layer));
-
-		/* Weather icon layer */
-		GRect weather_icon_frame = GRect( QTP_PADDING_X, qtp_weather_y(), QTP_WEATHER_SIZE, QTP_WEATHER_SIZE );
-		qtp_weather_icon_layer = bitmap_layer_create(weather_icon_frame);
-		bitmap_layer_set_alignment(qtp_weather_icon_layer, GAlignCenter);
-		const Tuple *icon_tuple = app_sync_get(&qtp_sync, QTP_WEATHER_ICON_KEY);
-		qtp_update_weather_icon(icon_tuple->value->uint8, false, false);
-		layer_add_child(window_get_root_layer(qtp_window), bitmap_layer_get_layer(qtp_weather_icon_layer)); 
-
+#ifdef QTP_K_SHOW_WEATHER
+	/* Weather description layer */
+	GRect desc_frame = GRect( QTP_PADDING_X + QTP_WEATHER_SIZE + 5, qtp_weather_y() + QTP_WEATHER_SIZE, QTP_SCREEN_WIDTH - QTP_PADDING_X, QTP_WEATHER_SIZE);
+	qtp_weather_desc_layer = text_layer_create(desc_frame);
+	text_layer_set_font(qtp_weather_desc_layer, fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD));
+	text_layer_set_text_alignment(qtp_weather_desc_layer, GTextAlignmentLeft);
+	const Tuple *desc_tuple = app_sync_get(&qtp_sync, QTP_WEATHER_DESC_KEY);
+	if (desc_tuple != NULL) {
+		text_layer_set_text(qtp_weather_desc_layer, desc_tuple->value->cstring);
 	}
+	layer_add_child(window_get_root_layer(qtp_window), text_layer_get_layer(qtp_weather_desc_layer));
+
+	/* Temperature description layer */
+	GRect temp_frame = GRect( QTP_PADDING_X + QTP_WEATHER_SIZE + 5, qtp_weather_y(), QTP_SCREEN_WIDTH, QTP_WEATHER_SIZE);
+	qtp_temp_layer = text_layer_create(temp_frame);
+	text_layer_set_text_alignment(qtp_temp_layer, GTextAlignmentLeft);
+	const Tuple *temp_tuple;
+#ifdef QTP_K_DEGREES_F
+	temp_tuple = app_sync_get(&qtp_sync, QTP_WEATHER_TEMP_F_KEY);
+#else
+	temp_tuple = app_sync_get(&qtp_sync, QTP_WEATHER_TEMP_C_KEY);
+#endif /* QTP_K_DEGREES_F */
+	if (temp_tuple != NULL) {
+		text_layer_set_text(qtp_temp_layer, temp_tuple->value->cstring);
+	}
+	text_layer_set_font(qtp_temp_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28));
+	layer_add_child(window_get_root_layer(qtp_window), text_layer_get_layer(qtp_temp_layer));
+
+	/* Weather icon layer */
+	GRect weather_icon_frame = GRect( QTP_PADDING_X, qtp_weather_y(), QTP_WEATHER_SIZE, QTP_WEATHER_SIZE );
+	qtp_weather_icon_layer = bitmap_layer_create(weather_icon_frame);
+	bitmap_layer_set_alignment(qtp_weather_icon_layer, GAlignCenter);
+	const Tuple *icon_tuple = app_sync_get(&qtp_sync, QTP_WEATHER_ICON_KEY);
+	qtp_update_weather_icon(icon_tuple->value->uint8, false, false);
+	layer_add_child(window_get_root_layer(qtp_window), bitmap_layer_get_layer(qtp_weather_icon_layer)); 
+#endif /* QTP_K_SHOW_WEATHER */
 
 	/* Battery Logo layer */
 	GRect battery_logo_frame = GRect( QTP_PADDING_X, qtp_battery_y(), QTP_BAT_ICON_SIZE, QTP_BAT_ICON_SIZE );
@@ -271,7 +253,6 @@ void qtp_init() {
 
 
 	/* Bluetooth Status text layer */
-
 	GRect bluetooth_frame = GRect(40,qtp_bluetooth_y(), QTP_SCREEN_WIDTH - QTP_BT_ICON_SIZE, QTP_BT_ICON_SIZE);
 	qtp_bluetooth_text_layer =  text_layer_create(bluetooth_frame);
 	text_layer_set_font(qtp_bluetooth_text_layer, fonts_get_system_font(FONT_KEY_GOTHIC_28));
@@ -279,11 +260,11 @@ void qtp_init() {
 	layer_add_child(window_get_root_layer(qtp_window), text_layer_get_layer(qtp_bluetooth_text_layer));
 
 	/* Invert the screen */
-	if (qtp_is_invert()) {
-		GRect inverter_frame = GRect(0,0, QTP_SCREEN_WIDTH, QTP_SCREEN_HEIGHT);
-		qtp_inverter_layer = inverter_layer_create(inverter_frame);
-		layer_add_child(window_get_root_layer(qtp_window), inverter_layer_get_layer(qtp_inverter_layer));
-	}
+#ifdef QTP_K_INVERT
+	GRect inverter_frame = GRect(0,0, QTP_SCREEN_WIDTH, QTP_SCREEN_HEIGHT);
+	qtp_inverter_layer = inverter_layer_create(inverter_frame);
+	layer_add_child(window_get_root_layer(qtp_window), inverter_layer_get_layer(qtp_inverter_layer));
+#endif
 
 	/* Register for back button */
 	//window_set_click_config_provider(qtp_window, (ClickConfigProvider)qtp_click_config_provider);
@@ -297,29 +278,28 @@ void qtp_deinit() {
 	text_layer_destroy(qtp_bluetooth_text_layer);
 	bitmap_layer_destroy(qtp_bluetooth_image_layer);
 	bitmap_layer_destroy(qtp_battery_image_layer);
-	if (qtp_is_show_time()) {
-		text_layer_destroy(qtp_time_layer);
-	}
-	if (qtp_is_show_weather()) {
-		text_layer_destroy(qtp_temp_layer);
-		text_layer_destroy(qtp_weather_desc_layer);
-		bitmap_layer_destroy(qtp_weather_icon_layer);
-		gbitmap_destroy(qtp_weather_icon);
-	}
-	if (qtp_is_invert()) {
-		inverter_layer_destroy(qtp_inverter_layer);
-	}
+#ifdef QTP_K_SHOW_TIME
+	text_layer_destroy(qtp_time_layer);
+#endif
+
+#ifdef QTP_K_SHOW_WEATHER
+	text_layer_destroy(qtp_temp_layer);
+	text_layer_destroy(qtp_weather_desc_layer);
+	bitmap_layer_destroy(qtp_weather_icon_layer);
+	gbitmap_destroy(qtp_weather_icon);
+#endif
+
+#ifdef QTP_K_INVERT
+	inverter_layer_destroy(qtp_inverter_layer);
+#endif
 	window_destroy(qtp_window);
-	if (qtp_is_autohide()) {
-		app_timer_cancel(qtp_hide_timer);
-	}
 }
 
 /* Deallocate persistent QTPlus items when watchface exits */
 void qtp_app_deinit() {
-	if (qtp_conf & QTP_K_SUBSCRIBE) {
-		bluetooth_connection_service_unsubscribe();
-	}
+#ifdef QTP_K_SUBSCRIBE
+	bluetooth_connection_service_unsubscribe();
+#endif
 	gbitmap_destroy(qtp_battery_images[0]);
 	gbitmap_destroy(qtp_battery_images[1]);
 	gbitmap_destroy(qtp_battery_images[2]);
@@ -332,9 +312,9 @@ void qtp_app_deinit() {
 void qtp_show() {
 	qtp_init();
 	window_stack_push(qtp_window, true);
-	if (qtp_is_autohide()) {
-		qtp_hide_timer = app_timer_register(QTP_WINDOW_TIMEOUT, qtp_timeout, NULL);
-	}
+#ifdef QTP_K_AUTOHIDE
+	qtp_hide_timer = app_timer_register(QTP_WINDOW_TIMEOUT, qtp_timeout, NULL);
+#endif
 }
 
 /* Hide QTPlus. Free memory */
@@ -343,59 +323,32 @@ void qtp_hide() {
 	qtp_deinit();
 }
 
-
-bool qtp_is_show_time() {
-	return (qtp_conf & QTP_K_SHOW_TIME) == QTP_K_SHOW_TIME;
-}
-bool qtp_is_show_weather() {
-	return (qtp_conf & QTP_K_SHOW_WEATHER) == QTP_K_SHOW_WEATHER;
-}
-bool qtp_is_autohide() {
-	return (qtp_conf & QTP_K_AUTOHIDE) == QTP_K_AUTOHIDE;
-}
-bool qtp_is_degrees_f() {
-	return (qtp_conf & QTP_K_DEGREES_F) == QTP_K_DEGREES_F;
-}
-
-bool qtp_is_invert() {
-	return (qtp_conf & QTP_K_INVERT) == QTP_K_INVERT;
-}
-
-bool qtp_should_vibrate() {
-	return (qtp_conf & QTP_K_VIBRATE) == QTP_K_VIBRATE;
-}
-
 int qtp_battery_y() {
-	if (qtp_is_show_time()) {
-		return QTP_BATTERY_BASE_Y + QTP_TIME_HEIGHT + QTP_PADDING_Y;
-	} else {
-		return QTP_BATTERY_BASE_Y + QTP_PADDING_Y;
-	}
+#ifdef QTP_K_SHOW_TIME
+	return QTP_BATTERY_BASE_Y + QTP_TIME_HEIGHT + QTP_PADDING_Y;
+#else
+	return QTP_BATTERY_BASE_Y + QTP_PADDING_Y;
+#endif
 }
 
 int qtp_bluetooth_y() {
-	if (qtp_is_show_time()) {
-		return QTP_BLUETOOTH_BASE_Y + QTP_TIME_HEIGHT + QTP_PADDING_Y;
-	} else {
-		return QTP_BLUETOOTH_BASE_Y + QTP_PADDING_Y;
-	}
+#ifdef QTP_K_SHOW_TIME
+	return QTP_BLUETOOTH_BASE_Y + QTP_TIME_HEIGHT + QTP_PADDING_Y;
+#else
+	return QTP_BLUETOOTH_BASE_Y + QTP_PADDING_Y;
+#endif
 }
 
 int qtp_weather_y() {
-	if (qtp_is_show_time()) {
-		return QTP_WEATHER_BASE_Y + QTP_PADDING_Y + QTP_TIME_HEIGHT;
-
-	} else {
-		return QTP_WEATHER_BASE_Y + QTP_PADDING_Y;
-	}
-}
-
-void qtp_set_config(int config) {
-	qtp_conf = config;
+#ifdef QTP_K_SHOW_TIME
+	return QTP_WEATHER_BASE_Y + QTP_PADDING_Y + QTP_TIME_HEIGHT;
+#else
+	return QTP_WEATHER_BASE_Y + QTP_PADDING_Y;
+#endif
 }
 
 void qtp_set_timeout(int timeout) {
-	QTP_WINDOW_TIMEOUT = timeout;	
+	QTP_WINDOW_TIMEOUT = timeout;
 }
 
 void qtp_init_bluetooth_status(bool status) {
